@@ -1,37 +1,32 @@
 package test;
 
-import java.util.List;
-
 import dao.BookDao;
 import vo.BookVo;
-import vo.CategoryVo;
 
 public class BookDaoTest {
 
 	public static void main(String[] args) {
 		// 책 삽입 테스트
-		insertTest("전설로 떠나는 월가의 영웅", 23000, 2L);
-		insertTest("톰캣 최종분석", 24000, 3L);
-		insertTest("찰리와 초콜릿 공장", 8800, 1L);
-		
-		// 책 조회
-		getListTest();		
+		insertTest();	
 	}
 	
-	public static void getListTest() {
-		List<BookVo> list = new BookDao().getList();
-		
-		for(BookVo vo: list) {
-			System.out.println(vo);
-		}
-	}
-	
-	public static void insertTest(String title, Integer price, Long categoryNo) {
+	public static void insertTest() {
 		BookVo vo = new BookVo();
-		vo.setTitle(title);
-		vo.setPrice(price);
-		vo.setCategoryNo(categoryNo);
+		vo.setTitle("전설로 떠나는 월가의 영웅");
+		vo.setPrice(14620);
+		vo.setCategoryNo(2L);
+		new BookDao().insert(vo);
 		
+		vo = new BookVo();
+		vo.setTitle("톰캣 최종분석");
+		vo.setPrice(24000);
+		vo.setCategoryNo(3L);
+		new BookDao().insert(vo);
+		
+		vo = new BookVo();
+		vo.setTitle("찰리와 초콜릿 공장");
+		vo.setPrice(9000);
+		vo.setCategoryNo(1L);
 		new BookDao().insert(vo);
 	}
 }

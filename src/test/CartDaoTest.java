@@ -1,41 +1,46 @@
 package test;
 
-import java.util.List;
-
 import dao.CartDao;
-import vo.CartVo;
 import vo.CartVo;
 
 public class CartDaoTest {
 
-	public static void main(String[] args) {
-		// 1번 고객의 카트 조회(일반 조회)
-		getCartBookListTest(1L, false);
-		// 1번 고객의 구매결정 한 책들 조회
-		getCartBookListTest(1L, true);
-		
+	public static void main(String[] args) {		
 		// 카트에 책 삽입 테스트.
-		// 카트는 멤버 생성 시 자동으로 만들어지도록 했기 때문에 MemberDao에서 테스트함
-		insertCartBookTest(2L, 1L, 3);
-		insertCartBookTest(3L, 2L, 1);
+		insertCartBookTest();
 	}
-	
-	// order = false: 특정 고객의 카트 안의 책들 get
-	// order = true: 특정 고객의 카트 안의 책들 중 '구매결정'을 한 책만 get
-	public static void getCartBookListTest(Long memberNo, Boolean order) {
-		List<CartVo> list = new CartDao().getCartBookList(memberNo, order);
-		
-		for(CartVo vo: list) {
-			System.out.println(vo);
-		}
-	}
-	
-	public static void insertCartBookTest(Long bookNo, Long memberNo, Integer bookAmount) {
+
+	public static void insertCartBookTest() {
+		// 김철수 (전설-2/찰리-3/톰캣-1)
 		CartVo vo = new CartVo();
-		vo.setBookNo(bookNo);
-		vo.setMemberNo(memberNo);
-		vo.setAmount(bookAmount);
+		vo.setBookNo(1L);
+		vo.setMemberNo(1L);
+		vo.setAmount(2);
+		new CartDao().insertCartBook(vo);
 		
+		vo = new CartVo();
+		vo.setBookNo(3L);
+		vo.setMemberNo(1L);
+		vo.setAmount(3);
+		new CartDao().insertCartBook(vo);
+		
+		vo = new CartVo();
+		vo.setBookNo(2L);
+		vo.setMemberNo(1L);
+		vo.setAmount(1);
+		new CartDao().insertCartBook(vo);
+		
+		// 이영희 (찰리-1/톰캣-6)
+		vo = new CartVo();
+		vo.setBookNo(3L);
+		vo.setMemberNo(2L);
+		vo.setAmount(1);
+		new CartDao().insertCartBook(vo);
+		
+		vo = new CartVo();
+		vo.setBookNo(2L);
+		vo.setMemberNo(2L);
+		vo.setAmount(6);
 		new CartDao().insertCartBook(vo);
 	}
 }

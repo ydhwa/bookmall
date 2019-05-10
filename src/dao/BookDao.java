@@ -11,14 +11,14 @@ import java.util.List;
 import vo.BookVo;
 
 public class BookDao {
+	// 책 삽입
 	public Boolean insert(BookVo vo) {
 		Boolean result = false;
-
+		
 		Connection conn = null;
 		PreparedStatement pstmt = null;
-
 		try {
-			conn = getConnection();
+			conn = CustomConnector.getConnection();
 
 			String sql = "insert into book values(null, ?, ?, ?)";
 			pstmt = conn.prepareStatement(sql);
@@ -32,38 +32,32 @@ public class BookDao {
 		} catch (SQLException e) {
 			System.out.println("error: " + e);
 		} finally {
-			try {
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			CustomConnector.closeConnection(null, pstmt, conn);
 		}
 
 		return result;
 	}
 
+	// 책 리스트 조회
 	public List<BookVo> getList() {
 		List<BookVo> result = new ArrayList<>();
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {
-			conn = getConnection();
-			String sql = "select title, price from book order by no asc";
+			conn = CustomConnector.getConnection();
+			String sql = "select b.title, c.name, b.price from book b, category c where c.no = b.category_no order by b.no asc";
 			pstmt = conn.prepareStatement(sql);
 
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				String title = rs.getString(1);
-				Integer price = rs.getInt(2);
+				String categoryName = rs.getString(2);
+				Integer price = rs.getInt(3);
 
 				BookVo vo = new BookVo();
 				vo.setTitle(title);
+				vo.setCategoryName(categoryName);
 				vo.setPrice(price);
 
 				result.add(vo);
@@ -72,33 +66,8 @@ public class BookDao {
 		} catch (SQLException e) {
 			System.out.println("error: " + e);
 		} finally {
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			CustomConnector.closeConnection(rs, pstmt, conn);
 		}
 		return result;
-	}
-	
-	private Connection getConnection() throws SQLException {
-		Connection conn = null;
-
-		try {
-			Class.forName("org.mariadb.jdbc.Driver");
-			String url = "jdbc:mariadb://192.168.1.48:3307/bookmall";
-			conn = DriverManager.getConnection(url, "bookmall", "bookmall"); // url, username, password
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return conn;
 	}
 }

@@ -2,7 +2,7 @@ package vo;
 
 public class CartVo {
 	private Integer amount;
-	private Boolean order;
+	private Boolean orderOk;
 	private Integer sumPrice;
 	
 	private Long bookNo;
@@ -18,12 +18,12 @@ public class CartVo {
 		this.amount = amount;
 	}
 
-	public Boolean getOrder() {
-		return order;
+	public Boolean getOrderOk() {
+		return orderOk;
 	}
 
-	public void setOrder(Boolean order) {
-		this.order = order;
+	public void setOrderOk(Boolean orderOk) {
+		this.orderOk = orderOk;
 	}
 
 	public Long getBookNo() {
@@ -60,7 +60,7 @@ public class CartVo {
 
 	@Override
 	public String toString() {
-		return "CartBookVo [amount=" + amount + ", order=" + order + ", sumPrice=" + sumPrice + ", bookNo=" + bookNo
+		return "CartBookVo [amount=" + amount + ", order=" + orderOk + ", sumPrice=" + sumPrice + ", bookNo=" + bookNo
 				+ ", bookTitle=" + bookTitle + ", memberNo=" + memberNo + "]";
 	}
 }

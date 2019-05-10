@@ -1,58 +1,72 @@
 package test;
 
-import java.util.List;
-
 import dao.OrderDao;
+import vo.CartVo;
 import vo.OrderBookVo;
 import vo.OrderVo;
 
 public class OrderDaoTest {
 
 	public static void main(String[] args) {
-		// 특정 고객의 주문 조회
-		getOrderListTest(1L);
-		
-		// 특정 고객의 주문에서 주문한 책들 조회
-		getOrderBookListTest(1L);
-		
-		// 주문 삽입 테스트
-		insertOrderTest(0, "강원도 춘천시", "주문완료", 1L);
-		// 책 주문 목록에 삽입하는 테스트
-		insertOrderBookTest(1L, 1L, 2);
-	}
-
-	public static void getOrderListTest(Long memberNo) {
-		List<OrderVo> list = new OrderDao().getOrderList(memberNo);
-		
-		for(OrderVo vo: list) {
-			System.out.println(vo);
-		}
+		insertOrderTest();
+		insertOrderFromCartTest();
 	}
 	
-	public static void getOrderBookListTest(Long memberNo) {
-		List<OrderBookVo> list = new OrderDao().getOrderBookList(memberNo);
+	// 회원이 그냥 바로 주문할 때 테스트
+	// 이영희 - 경기도 남양주시 화도읍으로 [톰캣-3/전설-4] 주문
+	public static void insertOrderTest() {
+		OrderVo orderVo = null;
+		OrderBookVo orderBookVo = null;
 		
-		for(OrderBookVo vo: list) {
-			System.out.println(vo);
-		}
+		// 주문 삽입
+		orderVo = new OrderVo();
+		orderVo.setReceiveAddress("경기도 남양주시 화도읍");
+		orderVo.setMemberNo(2L);
+		new OrderDao().insertOrder(orderVo);
+		
+		// 책 삽입
+		orderBookVo = new OrderBookVo();
+		orderBookVo.setBookNo(2L);
+		orderBookVo.setAmount(3);
+		new OrderDao().insertOrderBook(orderBookVo);
+		
+		orderBookVo = new OrderBookVo();
+		orderBookVo.setBookNo(1L);
+		orderBookVo.setAmount(4);
+		new OrderDao().insertOrderBook(orderBookVo);
+		
+		// 주문 금액 갱신 (할인되는 금액은 0원이라 가정)
+		new OrderDao().updateOrderPrice(0);
 	}
 	
-	public static void insertOrderTest(Integer price, String receiveAddress, String status, Long memberNo) {
-		OrderVo vo = new OrderVo();
-		vo.setPrice(price);
-		vo.setReceiveAddress(receiveAddress);
-		vo.setStatus(status);
-		vo.setMemberNo(memberNo);
+	// 회원이 카트에 있는 상품을 선택하여 주문할 때 테스트
+	// 김철수 - 강원도 춘천시 퇴계로로 [톰캣-1/찰리-3] 주문
+	public static void insertOrderFromCartTest() {
+		OrderVo orderVo = null;
+		CartVo cartVo = null;
 		
-		new OrderDao().insertOrder(vo);
-	}
-	
-	private static void insertOrderBookTest(Long bookNo, Long orderNo, Integer amount) {
-		OrderBookVo vo = new OrderBookVo();
-		vo.setBookNo(bookNo);
-		vo.setOrderNo(orderNo);
-		vo.setAmount(amount);
+		// 카트 안의 항목 구매 결정
+		cartVo = new CartVo();
+		cartVo.setBookNo(3L);
+		cartVo.setMemberNo(1L);
+		new OrderDao().updateCartBookOrderOk(cartVo);
 		
-		new OrderDao().insertOrderBook(vo);
+		cartVo = new CartVo();
+		cartVo.setBookNo(2L);
+		cartVo.setMemberNo(1L);
+		new OrderDao().updateCartBookOrderOk(cartVo);
+		
+		// 주문 삽입
+		orderVo = new OrderVo();
+		orderVo.setReceiveAddress("강원도 춘천시 퇴계로");
+		orderVo.setMemberNo(1L);
+		new OrderDao().insertOrder(orderVo);
+		
+		// 구매 결정한 항목들 주문에 삽입
+		new OrderDao().insertOrderBookFromCart(1L);
+		
+		// 주문 금액 갱신 (할인되는 금액은 0원이라 가정)
+		new OrderDao().updateOrderPrice(0);
+		
 	}
 }

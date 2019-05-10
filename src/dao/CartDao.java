@@ -1,7 +1,6 @@
 package dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,20 +10,25 @@ import java.util.List;
 import vo.CartVo;
 
 public class CartDao {
-	public List<CartVo> getCartBookList(Long memberNo, Boolean order) {
+	// 카트에 넣은 책들 리스트 조회
+	public List<CartVo> getCartBookList(Long memberNo) {
 		List<CartVo> result = new ArrayList<>();
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {
-			conn = getConnection();
-			String sql = "select b.title, c.amount, (b.price * c.amount) " + 
+			conn = CustomConnector.getConnection();
+			String sql =
+					"select b.title, c.amount, (b.price * c.amount) " + 
 					"from cart c, book b, member m " + 
 					"where c.book_no = b.no " + 
-					"	and c.member_no = m.no " + 
-					"   and m.no = ?" + (order ? " and c.order = true" : "");
+						"and c.member_no = m.no " + 
+						"and m.no = ? " +
+						"order by b.no asc";
 			pstmt = conn.prepareStatement(sql);
 
+			pstmt.setLong(1, memberNo);
+			
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				String bookTitle = rs.getString(1);
@@ -38,27 +42,16 @@ public class CartDao {
 
 				result.add(vo);
 			}
-
+			
 		} catch (SQLException e) {
 			System.out.println("error: " + e);
 		} finally {
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			CustomConnector.closeConnection(rs, pstmt, conn);
 		}
 		return result;
 	}
 
+	// 카트에 책 삽입
 	public Boolean insertCartBook(CartVo vo) {
 		Boolean result = false;
 
@@ -66,7 +59,7 @@ public class CartDao {
 		PreparedStatement pstmt = null;
 
 		try {
-			conn = getConnection();
+			conn = CustomConnector.getConnection();
 
 			String sql = "insert into cart(book_no, member_no, amount) values(?, ?, ?)";
 			pstmt = conn.prepareStatement(sql);
@@ -80,31 +73,9 @@ public class CartDao {
 		} catch (SQLException e) {
 			System.out.println("error: " + e);
 		} finally {
-			try {
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			CustomConnector.closeConnection(null, pstmt, conn);
 		}
 
 		return result;
-	}
-	
-	private Connection getConnection() throws SQLException {
-		Connection conn = null;
-
-		try {
-			Class.forName("org.mariadb.jdbc.Driver");
-			String url = "jdbc:mariadb://192.168.1.48:3307/bookmall";
-			conn = DriverManager.getConnection(url, "bookmall", "bookmall"); // url, username, password
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return conn;
 	}
 }
